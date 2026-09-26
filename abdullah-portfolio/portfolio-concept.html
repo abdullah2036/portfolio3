@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-side="your">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abdullah Bokhary — Simple on your side</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+/* ─── Design logic ────────────────────────────────────────────────
+   Two sides of every project → two registers.
+   Your side (the person):   paper, serif / naskh, round shapes.
+   My side (the machinery):  night, Plex Mono / Plex Sans, square shapes.
+   The ink is the only thing that exists on both sides — it's me.
+   ──────────────────────────────────────────────────────────────── */
+:root{
+  --bg:#F3F0E9; --surface:#FBFAF6; --surface-2:#ECE8DF; --text:#1D1C1A; --muted:#67635B;
+  --rule:#DCD6CA; --ink:#B83C1A; --ink-soft:rgba(184,60,26,.10); --on-ink:#FFF8F2;
+  --shadow:0 40px 80px -40px rgba(60,40,20,.28);
+  --serif:"Newsreader","Amiri",Georgia,serif;
+  --sans:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono","IBM Plex Sans Arabic",ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --gutter:clamp(16px,4vw,56px);
+  --max:1240px;
+}
+:root[data-side="my"]{
+  --bg:#0E1316; --surface:#141B1F; --surface-2:#1B242A; --text:#E6E3DB; --muted:#8E989A;
+  --rule:#27333B; --ink:#E8744F; --ink-soft:rgba(232,116,79,.13); --on-ink:#1A0E09;
+  --shadow:0 40px 80px -40px rgba(0,0,0,.6);
+}
+:root[lang="ar"]{
+  --serif:"Amiri","Newsreader",serif;
+  --sans:"IBM Plex Sans Arabic","IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono","IBM Plex Sans Arabic",ui-monospace,monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 var(--sans);
+  transition:background-color .7s var(--ease),color .7s var(--ease);overflow-x:hidden;
+  -webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit}
+button{font:inherit;color:inherit}
+code{font-family:var(--mono);font-size:.88em;background:var(--ink-soft);padding:.05em .35em;border-radius:4px;direction:ltr;unicode-bidi:isolate}
+.wrap{max-width:var(--max);margin-inline:auto;padding-inline:var(--gutter)}
+
+/* ─── swap: both registers occupy the same cell, so nothing jumps ─── */
+.swap{display:grid}
+.swap>.your,.swap>.my{grid-area:1/1;min-width:0;
+  transition:opacity .45s var(--ease),transform .45s var(--ease),visibility 0s linear .45s}
+.swap>.my{opacity:0;visibility:hidden;transform:translateY(8px)}
+[data-side="my"] .swap>.your{opacity:0;visibility:hidden;transform:translateY(-8px)}
+[data-side="my"] .swap>.my,
+[data-side="your"] .swap>.your{opacity:1;visibility:visible;transform:none;
+  transition:opacity .5s var(--ease) .12s,transform .5s var(--ease) .12s,visibility 0s}
+
+/* ─── mark: circle (people) — line (me) — square (machines) ─── */
+.mark{width:44px;height:14px;color:var(--ink);flex:none;overflow:visible}
+.mark *{stroke:currentColor;stroke-width:1.6;fill:transparent;transition:fill .5s var(--ease)}
+[data-side="your"] .mk-c,[data-side="my"] .mk-s{fill:currentColor}
+[dir="rtl"] .mark{transform:scaleX(-1)}
+
+/* ─── header ─── */
+.top{position:sticky;top:0;z-index:20;
+  background:color-mix(in srgb,var(--bg) 84%,transparent);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-bottom:1px solid transparent;transition:border-color .4s,background-color .7s var(--ease)}
+.top.scrolled{border-bottom-color:var(--rule)}
+.top .wrap{display:flex;align-items:center;gap:24px;height:64px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:500;font-size:15px;white-space:nowrap}
+.nav{display:flex;gap:28px;margin-inline-start:auto}
+.nav a{text-decoration:none;font-size:14px;color:var(--muted);transition:color .2s}
+.nav a:hover{color:var(--text)}
+.top-actions{display:flex;align-items:center;gap:12px}
+.lang{border:1px solid var(--rule);background:transparent;border-radius:999px;padding:5px 14px;font-size:14px;cursor:pointer;transition:border-color .2s}
+.lang:hover{border-color:var(--text)}
+.side-switch.compact{opacity:0;pointer-events:none;transition:opacity .3s}
+.top.show-switch .side-switch.compact{opacity:1;pointer-events:auto}
+@media (max-width:760px){
+  .nav{display:none}
+  .top-actions{margin-inline-start:auto}
+  .brand span{display:none}
+}
+
+/* ─── the switch ─── */
+.side-switch{position:relative;display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:999px;
+  border:1px solid var(--rule);background:var(--surface);isolation:isolate;transition:background-color .7s var(--ease),border-color .7s}
+.side-switch button{position:relative;z-index:1;border:0;background:none;cursor:pointer;border-radius:999px;
+  padding:9px 20px;font-size:15px;font-weight:500;white-space:nowrap;color:var(--muted);transition:color .35s var(--ease)}
+.side-switch button[aria-pressed="true"]{color:var(--on-ink)}
+.side-switch button:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.side-switch .thumb{position:absolute;z-index:0;top:4px;bottom:4px;inset-inline-start:4px;width:calc(50% - 4px);
+  border-radius:999px;background:var(--ink);transition:inset-inline-start .5s var(--ease),background-color .7s var(--ease)}
+[data-side="my"] .side-switch .thumb{inset-inline-start:50%}
+.side-switch.compact button{padding:5px 12px;font-size:13px}
+.side-switch.big button{padding:13px 30px;font-size:17px}
+
+/* ─── hero ─── */
+.hero{padding-block:clamp(56px,11vh,132px) clamp(72px,10vh,120px)}
+.eyebrow{display:flex;align-items:center;gap:12px;margin:0 0 28px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--ink)}
+.h1{font-family:var(--serif);font-weight:400;font-size:clamp(42px,8.2vw,124px);line-height:.98;letter-spacing:-.025em;margin:0}
+.h1 .line{display:block}
+.h1 .line>span{display:inline-block;animation:rise 1s var(--ease) both}
+.h1 .line:nth-child(2)>span{animation-delay:.12s}
+.h1 em{font-style:italic;text-decoration:underline;text-decoration-thickness:.045em;text-underline-offset:.14em;
+  text-decoration-color:transparent;transition:color .6s var(--ease),text-decoration-color .6s var(--ease)}
+[data-side="your"] .m-your,[data-side="my"] .m-my{color:var(--ink);text-decoration-color:var(--ink)}
+.hero-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(40px,7vw,112px);margin-top:clamp(40px,6vw,72px);align-items:start}
+.hero-sub{font-size:clamp(18px,1.6vw,21px);line-height:1.55;max-width:34em;margin:0}
+.hero-sub.my{font-family:var(--mono);font-size:clamp(15px,1.25vw,17px);line-height:1.7}
+.hero-controls{margin-top:36px;display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.hint{font-size:14px;color:var(--muted);margin:0;display:flex;gap:8px;align-items:center}
+.hint::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ink);animation:pulse 2.4s ease-in-out infinite}
+@media (max-width:900px){.hero-row{grid-template-columns:1fr}}
+
+/* specimen: the one button, and what it does */
+.spec{align-self:stretch}
+.spec-card{background:var(--surface);border:1px solid var(--rule);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.spec-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.spec-saved{display:flex;align-items:center;gap:7px}
+.spec-saved::before{content:"";width:7px;height:7px;border-radius:50%;background:#4F8A5B}
+.spec-body{padding:26px 24px 8px}
+.spec-chapter{font-family:var(--serif);font-size:26px;margin:0 0 6px}
+.spec-lines i{display:block;height:9px;border-radius:5px;background:var(--surface-2);margin-top:14px}
+.spec-publish{display:block;margin:26px 24px 24px;width:calc(100% - 48px);height:56px;border:0;border-radius:999px;
+  background:var(--ink);color:var(--on-ink);font:500 17px var(--sans);cursor:pointer;transition:transform .2s var(--ease),filter .2s}
+.spec-publish:hover{filter:brightness(1.06)}
+.spec-publish:active{transform:scale(.98)}
+.spec-publish:focus-visible{outline:2px solid var(--ink);outline-offset:4px}
+.spec-code{margin:0;background:var(--surface);border:1px solid var(--rule);border-radius:20px;box-shadow:var(--shadow);
+  padding:24px;font:400 13px/1.75 var(--mono);color:var(--text);overflow:auto;white-space:pre;direction:ltr;text-align:left;height:100%}
+.spec-code .k{color:var(--ink);font-weight:500}
+.spec-code .c{color:var(--muted)}
+.cap{margin:14px 4px 0;font-size:14px;color:var(--muted)}
+.spec .my .cap{font-family:var(--mono);font-size:13px}
+.spec>.my{display:flex;flex-direction:column}
+
+/* ─── sections ─── */
+section{scroll-margin-top:72px}
+.sec{padding-block:clamp(72px,11vw,150px);border-top:1px solid var(--rule);transition:border-color .7s}
+.kicker{display:flex;align-items:center;gap:12px;margin:0 0 20px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.kicker::before{content:"";width:28px;height:1px;background:var(--ink)}
+.h2{font-family:var(--serif);font-weight:400;font-size:clamp(34px,4.6vw,64px);line-height:1.05;letter-spacing:-.02em;margin:0;max-width:17em}
+.lede{margin:24px 0 0;max-width:40em;font-size:18px;color:var(--muted)}
+.lede.my{font-family:var(--mono);font-size:15px}
+[lang="ar"] .eyebrow,[lang="ar"] .kicker{letter-spacing:0;text-transform:none;font-size:14px}
+[lang="ar"] .h1{letter-spacing:0;line-height:1.3;font-size:clamp(42px,7.4vw,112px)}
+[lang="ar"] .h2{letter-spacing:0;line-height:1.35}
+[lang="ar"] .h1 em{font-style:normal;text-underline-offset:.42em;text-decoration-thickness:.035em}
+
+/* ─── projects ─── */
+.projects{margin-top:clamp(48px,7vw,96px)}
+.project{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,5vw,72px);
+  padding-block:clamp(40px,5vw,64px);border-top:1px solid var(--rule);transition:border-color .7s}
+.p-num{font-family:var(--mono);font-size:13px;color:var(--ink);margin:0 0 18px}
+.p-name{font-family:var(--serif);font-weight:400;font-size:clamp(30px,3.2vw,44px);line-height:1.1;margin:0}
+.p-alt{margin:6px 0 0;color:var(--muted);font-size:15px}
+.p-alt:empty{display:none}
+.p-alt{text-align:left}
+[dir="rtl"] .p-alt{text-align:right}
+.p-for{margin:22px 0 26px;font-size:15px;display:flex;gap:10px;flex-wrap:wrap}
+.p-for .lbl{color:var(--muted)}
+.p-your{font-family:var(--serif);font-size:clamp(19px,1.55vw,22px);line-height:1.55;margin:0}
+.p-my{list-style:none;margin:0;padding:0;font-family:var(--mono);font-size:14px;line-height:1.65}
+.p-my li{position:relative;padding-inline-start:20px;margin-bottom:12px}
+.p-my li::before{content:"";position:absolute;inset-inline-start:0;top:.62em;width:6px;height:6px;background:var(--ink)}
+.p-links{margin-top:28px}
+.p-links a{font-size:15px;font-weight:500;text-decoration:none;border-bottom:1px solid var(--ink);padding-bottom:2px;justify-self:start;transition:color .2s}
+.p-links a:hover{color:var(--ink)}
+.p-media{align-self:start}
+.shot{border-radius:14px;overflow:hidden;border:1px solid var(--rule);box-shadow:var(--shadow);background:var(--surface-2)}
+.shot img{width:100%;height:100%;min-height:0;aspect-ratio:16/10;object-fit:cover;object-position:top}
+@media (max-width:900px){.project{grid-template-columns:1fr}}
+
+/* diagrams: people are round + serif, machines are square + mono */
+.diagram{position:relative;border:1px solid var(--rule);border-radius:14px;background:var(--surface);padding:22px 22px 20px;overflow:hidden;min-height:100%}
+.diagram::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.55;
+  background-image:linear-gradient(var(--rule) 1px,transparent 1px),linear-gradient(90deg,var(--rule) 1px,transparent 1px);
+  background-size:24px 24px;-webkit-mask-image:radial-gradient(circle at 70% 30%,#000,transparent 75%);mask-image:radial-gradient(circle at 70% 30%,#000,transparent 75%)}
+.legend{position:relative;display:flex;gap:16px;justify-content:flex-end;margin:0 0 12px;font:400 12px var(--mono);color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend .lp::before{content:"";width:9px;height:9px;border:1.4px solid var(--muted);border-radius:50%}
+.legend .lm::before{content:"";width:8px;height:8px;background:var(--muted)}
+.flow{position:relative;display:flex;flex-direction:column;align-items:flex-start}
+.node{display:flex;flex-direction:column;gap:1px;padding:7px 16px;border:1px solid var(--rule);background:var(--surface-2);max-width:100%}
+.node .t{font-size:14px;font-weight:500}
+.node .s{font:400 12px/1.45 var(--mono);color:var(--muted)}
+.node.person{border-radius:999px;padding-inline:22px;border-color:var(--ink)}
+.node.person .t{font-family:var(--serif);font-size:18px;font-weight:400;line-height:1.25}
+.node.machine{border-radius:3px;font-family:var(--mono)}
+.arrow{position:relative;width:1px;height:18px;background:var(--ink);margin-inline-start:26px}
+.arrow::after{content:"";position:absolute;bottom:-1px;left:-3.5px;border:4px solid transparent;border-top:5px solid var(--ink);border-bottom:0}
+.d-note{position:relative;margin:14px 0 0;font:italic 400 17px var(--serif);color:var(--ink)}
+[lang="ar"] .d-note{font-style:normal}
+
+/* illustration for the kindergarten project (no screenshot yet) */
+.art-basmat{aspect-ratio:16/10;border-radius:14px;overflow:hidden;border:1px solid var(--rule);box-shadow:var(--shadow);
+  background:radial-gradient(120% 90% at 20% 20%,#16804D,#0A4A2C);color:#F3EFE3;display:flex;align-items:center;justify-content:space-evenly;gap:16px;padding:24px;direction:rtl}
+.art-basmat .fp{width:min(38%,200px);height:auto;flex:none}
+.art-basmat .fp ellipse{fill:none;stroke:#F3EFE3;stroke-width:2.2;stroke-linecap:round}
+.art-text{display:flex;flex-direction:column;gap:6px;font-family:"Amiri",serif}
+.art-title{font-size:clamp(26px,3.4vw,44px);line-height:1.3}
+.art-sub{font-family:"IBM Plex Sans Arabic",sans-serif;font-size:14px;opacity:.8}
+
+/* ─── one brief, four worlds ─── */
+.worlds-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin-top:clamp(40px,5vw,64px)}
+.world img{width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top;border-radius:10px;border:1px solid var(--rule)}
+.world .v{display:block;margin:14px 0 4px;font:500 12px var(--mono);color:var(--ink)}
+.world .your{font-size:15px}
+.world .my{font-family:var(--mono);font-size:13px;color:var(--muted);line-height:1.55}
+@media (max-width:1000px){.worlds-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.worlds-grid{grid-template-columns:1fr}}
+
+/* ─── lab ─── */
+.lab-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(32px,5vw,72px);margin-top:clamp(40px,5vw,64px)}
+.lab-item{border-top:1px solid var(--rule);padding-block:24px 28px;transition:border-color .7s}
+.lab-item h3{margin:0 0 8px;font-size:18px;font-weight:500}
+.lab-item .your{margin:0;color:var(--muted)}
+.lab-item .my{margin:0;font-family:var(--mono);font-size:14px;color:var(--muted)}
+@media (max-width:760px){.lab-grid{grid-template-columns:1fr}}
+
+/* ─── contact ─── */
+.contact .h2{font-size:clamp(44px,7.6vw,112px);line-height:1;max-width:none}
+[lang="ar"] .contact .h2{line-height:1.3}
+.contact .lede{font-size:clamp(18px,1.6vw,21px);color:var(--text);max-width:32em}
+.contact .lede.my{font-size:16px;color:var(--muted)}
+.btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:40px}
+.btn{display:inline-flex;align-items:center;height:52px;padding:0 26px;border-radius:999px;text-decoration:none;font-weight:500;font-size:16px;
+  border:1px solid var(--rule);transition:border-color .2s,filter .2s}
+.btn:hover{border-color:var(--text)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
+.btn.primary:hover{filter:brightness(1.06)}
+
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between;align-items:center;padding-block:32px 48px;border-top:1px solid var(--rule);font-size:14px;color:var(--muted)}
+footer .brand{color:var(--text)}
+
+/* ─── motion ─── */
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.js .reveal{opacity:0;transform:translateY(20px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.js .reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important;transition-delay:0s!important;scroll-behavior:auto!important}
+  .js .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<header class="top" id="top-bar">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg class="mark" viewBox="0 0 44 14" aria-hidden="true"><circle class="mk-c" cx="7" cy="7" r="5.2"/><path class="mk-l" d="M12.2 7H31"/><rect class="mk-s" x="31.2" y="1.8" width="10.4" height="10.4" rx="1"/></svg>
+      <span data-t="name"></span>
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#work" data-t="nav.work"></a>
+      <a href="#lab" data-t="nav.lab"></a>
+      <a href="#contact" data-t="nav.contact"></a>
+    </nav>
+    <div class="top-actions">
+      <div class="side-switch compact" role="group" data-ta="side.label" inert>
+        <button type="button" data-side-btn="your" aria-pressed="true" data-t="side.your"></button>
+        <button type="button" data-side-btn="my" aria-pressed="false" data-t="side.my"></button>
+        <span class="thumb" aria-hidden="true"></span>
+      </div>
+      <button class="lang" id="lang" type="button" data-t="lang.btn"></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero wrap" id="top">
+    <p class="eyebrow" data-t="hero.eyebrow"></p>
+    <h1 class="h1">
+      <span class="line"><span data-t="h1.a"></span></span>
+      <span class="line"><span data-t="h1.b"></span></span>
+    </h1>
+
+    <div class="hero-row">
+      <div>
+        <div class="swap">
+          <p class="your hero-sub" data-t="hero.your"></p>
+          <p class="my hero-sub" data-t="hero.my"></p>
+        </div>
+        <div class="hero-controls">
+          <div class="side-switch big" id="hero-switch" role="group" data-ta="side.label">
+            <button type="button" data-side-btn="your" aria-pressed="true" data-t="side.your"></button>
+            <button type="button" data-side-btn="my" aria-pressed="false" data-t="side.my"></button>
+            <span class="thumb" aria-hidden="true"></span>
+          </div>
+          <p class="hint" data-t="hero.hint"></p>
+        </div>
+      </div>
+
+      <div class="spec swap">
+        <div class="your">
+          <div class="spec-card">
+            <div class="spec-bar"><span data-t="spec.title"></span><span class="spec-saved" data-t="spec.saved"></span></div>
+            <div class="spec-body">
+              <p class="spec-chapter" data-t="spec.chapter"></p>
+              <div class="spec-lines" aria-hidden="true"><i></i><i></i><i style="width:88%"></i><i style="width:64%"></i></div>
+            </div>
+            <button class="spec-publish" id="publish" type="button" data-t="spec.publish"></button>
+          </div>
+          <p class="cap" data-t="spec.cap.your"></p>
+        </div>
+        <div class="my">
+<pre class="spec-code"><span class="k">PUT</span> /repos/abdullah2036/eloriaproject
+    /contents/data.json
+Authorization: Bearer <span class="c">‹fine-grained · this repo only›</span>
+
+{
+  "message": "Publish: chapter 12",
+  "content": "eyJub3ZlbHMiOlt7InRpdGxl…",
+  "sha":     "3f9c1e0b…"
+}
+
+<span class="c">←</span> <span class="k">409</span> Conflict   <span class="c">→ refetch sha, retry</span>
+<span class="c">←</span> <span class="k">200</span> OK         <span class="c">→ Pages rebuild ≈ 1 min</span></pre>
+          <p class="cap" data-t="spec.cap.my"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section class="sec" id="work">
+    <div class="wrap">
+      <p class="kicker" data-t="work.kicker"></p>
+      <h2 class="h2" data-t="work.title"></h2>
+      <div class="swap">
+        <p class="your lede" data-t="work.your"></p>
+        <p class="my lede" data-t="work.my"></p>
+      </div>
+
+      <div class="projects">
+        <!-- 01 Eloria -->
+        <article class="project reveal">
+          <div>
+            <p class="p-num">01</p>
+            <h3 class="p-name" data-t="p1.name"></h3>
+            <p class="p-alt" dir="auto" data-t="p1.alt"></p>
+            <p class="p-for"><span class="lbl" data-t="for"></span><span data-t="p1.for"></span></p>
+            <div class="swap">
+              <p class="your p-your" data-t="p1.your"></p>
+              <ul class="my p-my" data-t="p1.my"></ul>
+            </div>
+            <div class="swap p-links">
+              <a class="your" href="https://abdullah2036.github.io/eloriaproject/" target="_blank" rel="noopener" data-t="live"></a>
+              <a class="my" href="https://github.com/abdullah2036/eloriaproject" target="_blank" rel="noopener" data-t="src"></a>
+            </div>
+          </div>
+          <div class="p-media swap">
+            <div class="your shot"><img src="https://raw.githubusercontent.com/abdullah2036/eloriaproject/HEAD/docs/screenshots/home.jpg" alt="Eloria Story home page: a soft lilac Arabic reading site" loading="lazy"></div>
+            <div class="my diagram" data-diagram="p1"></div>
+          </div>
+        </article>
+
+        <!-- 02 Lulu -->
+        <article class="project reveal">
+          <div>
+            <p class="p-num">02</p>
+            <h3 class="p-name" data-t="p2.name"></h3>
+            <p class="p-alt" dir="auto" data-t="p2.alt"></p>
+            <p class="p-for"><span class="lbl" data-t="for"></span><span data-t="p2.for"></span></p>
+            <div class="swap">
+              <p class="your p-your" data-t="p2.your"></p>
+              <ul class="my p-my" data-t="p2.my"></ul>
+            </div>
+            <div class="swap p-links">
+              <a class="your" href="https://abdullah2036.github.io/artmaher/" target="_blank" rel="noopener" data-t="live"></a>
+              <a class="my" href="https://github.com/abdullah2036/artmaher" target="_blank" rel="noopener" data-t="src"></a>
+            </div>
+          </div>
+          <div class="p-media swap">
+            <div class="your shot"><img src="https://raw.githubusercontent.com/abdullah2036/artmaher/HEAD/docs/screenshots/hero.jpg" alt="Lulu's Acrylic Art storefront hero with a WhatsApp order button" loading="lazy"></div>
+            <div class="my diagram" data-diagram="p2"></div>
+          </div>
+        </article>
+
+        <!-- 03 Basmat Watan -->
+        <article class="project reveal">
+          <div>
+            <p class="p-num">03</p>
+            <h3 class="p-name" data-t="p3.name"></h3>
+            <p class="p-alt" dir="auto" data-t="p3.alt"></p>
+            <p class="p-for"><span class="lbl" data-t="for"></span><span data-t="p3.for"></span></p>
+            <div class="swap">
+              <p class="your p-your" data-t="p3.your"></p>
+              <ul class="my p-my" data-t="p3.my"></ul>
+            </div>
+            <div class="swap p-links">
+              <a class="your" href="https://github.com/abdullah2036/basmat-watan" target="_blank" rel="noopener" data-t="proj"></a>
+              <a class="my" href="https://github.com/abdullah2036/basmat-watan" target="_blank" rel="noopener" data-t="src"></a>
+            </div>
+          </div>
+          <div class="p-media swap">
+            <div class="your art-basmat" role="img" aria-label="Illustration: a fingerprint, the project's motif">
+              <svg class="fp" viewBox="-62 -78 124 156" aria-hidden="true">
+                <g transform="rotate(-8)">
+                  <ellipse rx="6" ry="8"/>
+                  <ellipse rx="13" ry="17" stroke-dasharray="60 9"/>
+                  <ellipse rx="20" ry="26" stroke-dasharray="90 10 30 10"/>
+                  <ellipse rx="27" ry="35" stroke-dasharray="120 12"/>
+                  <ellipse rx="34" ry="44" stroke-dasharray="70 10 110 14"/>
+                  <ellipse rx="41" ry="53" stroke-dasharray="160 16 60 12"/>
+                  <ellipse rx="48" ry="62" stroke-dasharray="200 30"/>
+                  <ellipse rx="55" ry="71" stroke-dasharray="120 40 90 30"/>
+                </g>
+              </svg>
+              <div class="art-text"><span class="art-title">بصمتي لوطني</span><span class="art-sub">اليوم الوطني السعودي ٩٦</span></div>
+            </div>
+            <div class="my diagram" data-diagram="p3"></div>
+          </div>
+        </article>
+
+        <!-- 04 Pairing Board -->
+        <article class="project reveal">
+          <div>
+            <p class="p-num">04</p>
+            <h3 class="p-name" data-t="p4.name"></h3>
+            <p class="p-alt" dir="auto" data-t="p4.alt"></p>
+            <p class="p-for"><span class="lbl" data-t="for"></span><span data-t="p4.for"></span></p>
+            <div class="swap">
+              <p class="your p-your" data-t="p4.your"></p>
+              <ul class="my p-my" data-t="p4.my"></ul>
+            </div>
+            <div class="swap p-links">
+              <a class="your" href="https://chessresults.pageui.workers.dev/#1434355" target="_blank" rel="noopener" data-t="live"></a>
+              <a class="my" href="https://github.com/abdullah2036/chessUI" target="_blank" rel="noopener" data-t="src"></a>
+            </div>
+          </div>
+          <div class="p-media swap">
+            <div class="your shot"><img src="https://raw.githubusercontent.com/abdullah2036/chessUI/HEAD/docs/screenshots/search-desktop.jpg" alt="Pairing Board: a player's table-tent card with board number and opponent" loading="lazy"></div>
+            <div class="my diagram" data-diagram="p4"></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ONE BRIEF, FOUR WORLDS -->
+  <section class="sec" id="worlds">
+    <div class="wrap">
+      <p class="kicker" data-t="w.kicker"></p>
+      <h2 class="h2" data-t="w.title"></h2>
+      <div class="swap">
+        <p class="your lede" data-t="w.your"></p>
+        <p class="my lede" data-t="w.my"></p>
+      </div>
+      <div class="worlds-grid">
+        <figure class="world reveal" style="margin:0">
+          <img src="https://raw.githubusercontent.com/abdullah2036/ComputerjyMaher/HEAD/docs/screenshots/hero.jpg" alt="Computerjy Maher v1: retro terminal style" loading="lazy">
+          <span class="v">v1</span>
+          <figcaption class="swap"><span class="your" data-t="v1.your"></span><span class="my" data-t="v1.my"></span></figcaption>
+        </figure>
+        <figure class="world reveal" style="margin:0">
+          <img src="https://raw.githubusercontent.com/abdullah2036/computerjymaher3d/HEAD/docs/screenshots/room.jpg" alt="Computerjy Maher v2: a 3D gaming room" loading="lazy">
+          <span class="v">v2</span>
+          <figcaption class="swap"><span class="your" data-t="v2.your"></span><span class="my" data-t="v2.my"></span></figcaption>
+        </figure>
+        <figure class="world reveal" style="margin:0">
+          <img src="https://raw.githubusercontent.com/abdullah2036/computerjymaherV3/HEAD/docs/screenshots/hero.jpg" alt="Computerjy Maher v3: a neon night-city scroll scene" loading="lazy">
+          <span class="v">v3</span>
+          <figcaption class="swap"><span class="your" data-t="v3.your"></span><span class="my" data-t="v3.my"></span></figcaption>
+        </figure>
+        <figure class="world reveal" style="margin:0">
+          <img src="https://raw.githubusercontent.com/abdullah2036/computerjymaherOS/HEAD/docs/screenshots/desktop.jpg" alt="Computerjy Maher v4: the shop as a desktop operating system" loading="lazy">
+          <span class="v">v4</span>
+          <figcaption class="swap"><span class="your" data-t="v4.your"></span><span class="my" data-t="v4.my"></span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- LAB -->
+  <section class="sec" id="lab">
+    <div class="wrap">
+      <p class="kicker" data-t="lab.kicker"></p>
+      <h2 class="h2" data-t="lab.title"></h2>
+      <p class="lede" data-t="lab.intro"></p>
+      <div class="lab-grid">
+        <div class="lab-item reveal"><h3 data-t="l1.name"></h3><div class="swap"><p class="your" data-t="l1.your"></p><p class="my" data-t="l1.my"></p></div></div>
+        <div class="lab-item reveal"><h3 data-t="l2.name"></h3><div class="swap"><p class="your" data-t="l2.your"></p><p class="my" data-t="l2.my"></p></div></div>
+        <div class="lab-item reveal"><h3 data-t="l3.name"></h3><div class="swap"><p class="your" data-t="l3.your"></p><p class="my" data-t="l3.my"></p></div></div>
+        <div class="lab-item reveal"><h3 data-t="l4.name"></h3><div class="swap"><p class="your" data-t="l4.your"></p><p class="my" data-t="l4.my"></p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="sec contact" id="contact">
+    <div class="wrap">
+      <p class="kicker" data-t="contact.kicker"></p>
+      <h2 class="h2" data-t="contact.title"></h2>
+      <div class="swap">
+        <p class="your lede" data-t="contact.your"></p>
+        <p class="my lede" data-t="contact.my"></p>
+      </div>
+      <div class="btns">
+        <a class="btn primary" href="#" data-t="btn.wa"></a>
+        <a class="btn" href="#" data-t="btn.mail"></a>
+        <a class="btn" href="https://github.com/abdullah2036" target="_blank" rel="noopener" data-t="btn.gh"></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="brand"><svg class="mark" viewBox="0 0 44 14" aria-hidden="true"><circle class="mk-c" cx="7" cy="7" r="5.2"/><path class="mk-l" d="M12.2 7H31"/><rect class="mk-s" x="31.2" y="1.8" width="10.4" height="10.4" rx="1"/></svg><span data-t="foot"></span></span>
+    <span data-t="foot.note"></span>
+  </div>
+</footer>
+
+<script>
+document.documentElement.classList.add("js");
+
+const T = {
+  en: {
+    title: "Abdullah Bokhary — Simple on your side",
+    name: "Abdullah Bokhary",
+    "nav.work": "Work", "nav.lab": "Lab", "nav.contact": "Contact",
+    "lang.btn": "عربي",
+    "side.your": "Your side", "side.my": "My side", "side.label": "Show the work from",
+    "hero.eyebrow": "Web developer · Saudi Arabia",
+    "h1.a": "Simple on <em class=\"m-your\">your side</em>.",
+    "h1.b": "Engineered on <em class=\"m-my\">mine</em>.",
+    "hero.your": "Tell me what you want in your own words, Arabic or English. You get something that’s easy to use, and I handle the complicated part so you never have to think about it.",
+    "hero.my": "Static files until the project needs a server. Supabase or a Cloudflare Worker when it does. WebGL when it’s worth the weight. And a README written for whoever maintains it next, in their language.",
+    "hero.hint": "Every project on this page has both sides. Flip it.",
+    "spec.title": "Eloria · Author mode", "spec.saved": "Draft saved", "spec.chapter": "Chapter 12",
+    "spec.publish": "Publish",
+    "spec.cap.your": "What the novelist sees: one button. Press it.",
+    "spec.cap.my": "What happens when she presses it.",
+    "work.kicker": "Work",
+    "work.title": "For people who never wanted to learn the technology.",
+    "work.your": "Each project shows who it was for and what they got. Flip the switch to see how it was built.",
+    "work.my": "Each project: the constraints, the decisions, and the parts nobody was supposed to notice.",
+    for: "For", live: "Visit the live site ↗", src: "Read the source ↗", proj: "See the project ↗",
+
+    "p1.name": "Eloria Story", "p1.alt": "إيلوريا · حكايات تُكتب لتبقى",
+    "p1.for": "A novelist with no technical background.",
+    "p1.your": "She writes in the page itself, presses one button, and her new chapter is live about a minute later. No dashboard to learn, no hosting bill.",
+    "p1.my": [
+      "Author mode lives inside the site; every edit is saved as a <code>localStorage</code> draft",
+      "Publish writes <code>data.json</code> through the GitHub Contents API, with a fine-grained token scoped to one repo",
+      "Rapid edits batch into one commit; a <code>409</code> is retried with a fresh <code>sha</code>",
+      "Covers are resized and compressed in the browser so the data stays light",
+      "v2 moves the same reader onto Supabase: Postgres, auth, storage, row-level security"
+    ],
+    "p2.name": "Lulu’s Acrylic Art", "p2.alt": "لوحات لولو",
+    "p2.for": "A small, home-based painting business.",
+    "p2.your": "Customers pick what they want, a gift, a graduation, a wedding, and land in WhatsApp with the order already written. She keeps running the shop the way she already does.",
+    "p2.my": [
+      "No backend, no cart, no payment gateway. On purpose",
+      "Each category builds its own pre-filled <code>wa.me</code> order link",
+      "A one-time first-order offer, remembered in <code>localStorage</code>",
+      "One <code>index.html</code>: Tailwind, Tajawal, vanilla JS. Arabic, RTL, mobile-first"
+    ],
+    "p3.name": "My Print for My Nation", "p3.alt": "بصمتي لوطني",
+    "p3.for": "A kindergarten, for Saudi National Day 96.",
+    "p3.your": "A child types their name, presses a finger to the screen, and their print lands on the map of the Kingdom. Every print stays on the wall. The setup guide is written for the principal, in Arabic: ten minutes, no accounts, no admin panel.",
+    "p3.my": [
+      "Runs from plain files with zero setup; shared mode switches on with a Supabase URL and anon key",
+      "The live wall refreshes every 6 s; entries accumulate and are never deleted",
+      "Text, photo or voice entries; the mic is why the guide insists on https",
+      "Static deploy: drag the folder onto Netlify Drop, or Vercel, or GitHub Pages"
+    ],
+    "p4.name": "Pairing Board", "p4.alt": "",
+    "p4.for": "Chess players at a crowded tournament.",
+    "p4.your": "I watched players crowd around printed pairing sheets looking for their board. Now they type their name and see only what they need: board, colour, opponent, result.",
+    "p4.my": [
+      "chess-results.com has no API and no CORS, so a Cloudflare Worker scrapes and normalises the tables into JSON",
+      "Edge cache (12 s for rounds): a whole hall refreshing costs the source a handful of requests",
+      "Order-agnostic search: <code>Doe, J</code>, a start number or a FIDE ID; accents ignored",
+      "If a background refresh fails, the last good pairings stay on screen"
+    ],
+
+    "w.kicker": "Range",
+    "w.title": "One brief, four worlds.",
+    "w.your": "A mock computer shop, Computerjy Maher, designed four completely different ways from the same content. Your site should look like you, not like me.",
+    "w.my": "Same copy, same products, four rebuilds from scratch: static HTML, a first-person WebGL room, a WebGL particle scroll, and a windowed OS shell.",
+    "v1.your": "A retro terminal", "v1.my": "HTML · CSS · JS, Arabic + English",
+    "v2.your": "A room you walk into", "v2.my": "First-person WebGL; click the monitor, fly through the glass",
+    "v3.your": "One continuous night scene", "v3.my": "A WebGL particle field that morphs per section",
+    "v4.your": "The shop as an operating system", "v4.my": "Windowed OS shell with deep links like <code>#mac</code>",
+
+    "lab.kicker": "Lab",
+    "lab.title": "When nobody’s asking.",
+    "lab.intro": "Things I build to find out how things work. It’s why the simple parts stay simple.",
+    "l1.name": "NovaOS",
+    "l1.your": "An operating system, starting from the first byte a computer reads.",
+    "l1.my": "16-bit real-mode bootloader in x86 assembly, on a FAT12 floppy image.",
+    "l2.name": "LEAP ONE",
+    "l2.your": "A pocket guide for LEAP 2026 in Riyadh. Ask out loud, in Arabic or English, where to go next.",
+    "l2.my": "Voice in, voice out; point the camera at a hall sign and ask; answers in two to four sentences.",
+    "l3.name": "Offline Inspection AI",
+    "l3.your": "An AI assistant for inspection data in places with no internet: rigs, refineries.",
+    "l3.my": "Offline-first, built for air-gapped industrial sites. Python.",
+    "l4.name": "Reject2Value",
+    "l4.your": "Turns a desalination plant’s reject-brine lab numbers into what a manager acts on: riyals, CO₂, water.",
+    "l4.my": "Hackathon prototype: sample entry, CSV / Excel / PDF upload, value routes, Arabic + English.",
+
+    "contact.kicker": "Contact",
+    "contact.title": "Describe it badly.",
+    "contact.your": "You don’t need the right words. Tell me what you imagine, however it comes out, and I’ll come back with what’s possible and what it will take.",
+    "contact.my": "Technical? Skip the brief. The repos, READMEs and architecture notes are all on GitHub.",
+    "btn.wa": "Message on WhatsApp", "btn.mail": "Email me", "btn.gh": "GitHub",
+    foot: "Abdullah Bokhary", "foot.note": "Simple on your side. Engineered on mine. · Concept, 2026"
+  },
+
+  ar: {
+    title: "عبدالله بخاري — بسيط من جهتك",
+    name: "عبدالله بخاري",
+    "nav.work": "الأعمال", "nav.lab": "المختبر", "nav.contact": "تواصل",
+    "lang.btn": "English",
+    "side.your": "جهتك", "side.my": "جهتي", "side.label": "اعرض العمل من",
+    "hero.eyebrow": "مطوّر مواقع · السعودية",
+    "h1.a": "بسيط <em class=\"m-your\">من جهتك</em>.",
+    "h1.b": "متقن <em class=\"m-my\">من جهتي</em>.",
+    "hero.your": "أخبرني بما تريد بكلماتك، بالعربي أو بالإنجليزي. تحصل على شيء سهل الاستخدام، وأتولّى أنا الجزء المعقّد حتى لا تحتاج أن تفكّر فيه.",
+    "hero.my": "ملفات ثابتة ما دام المشروع لا يحتاج خادمًا، وSupabase أو Cloudflare Worker حين يحتاجه، وWebGL حين يستحق وزنه. ودليل تشغيل مكتوب لمن سيتولّى المشروع بعدي، بلغته.",
+    "hero.hint": "لكل مشروع في هذه الصفحة جهتان. جرّب المفتاح.",
+    "spec.title": "إيلوريا · وضع الكاتبة", "spec.saved": "حُفظت المسودة", "spec.chapter": "الفصل ١٢",
+    "spec.publish": "نشر",
+    "spec.cap.your": "ما تراه الكاتبة: زرّ واحد. اضغطه.",
+    "spec.cap.my": "ما يحدث حين تضغطه.",
+    "work.kicker": "الأعمال",
+    "work.title": "لأشخاص لم يريدوا يومًا أن يتعلّموا التقنية.",
+    "work.your": "كل مشروع يعرض لمن صُنع وماذا حصل عليه. بدّل المفتاح لترى كيف بُني.",
+    "work.my": "كل مشروع: القيود، والقرارات، والأجزاء التي لم يكن يُفترض أن يلاحظها أحد.",
+    for: "لِمَن", live: "زيارة الموقع ↖", src: "قراءة الكود ↖", proj: "عن المشروع ↖",
+
+    "p1.name": "إيلوريا", "p1.alt": "Eloria Story · حكايات تُكتب لتبقى",
+    "p1.for": "روائية بلا خلفية تقنية.",
+    "p1.your": "تكتب داخل الموقع نفسه، وتضغط زرًّا واحدًا، فيظهر فصلها الجديد للقرّاء بعد دقيقة تقريبًا. لا لوحة تحكّم تتعلّمها، ولا فاتورة استضافة.",
+    "p1.my": [
+      "وضع الكاتبة داخل الموقع نفسه، وكل تعديل يُحفظ مسودةً في <code>localStorage</code>",
+      "زر النشر يكتب <code>data.json</code> عبر GitHub Contents API بمفتاح محدود الصلاحية لمستودع واحد",
+      "التعديلات المتتالية تُجمع في commit واحد، وخطأ <code>409</code> يُعاد بـ <code>sha</code> جديد",
+      "الأغلفة تُصغَّر وتُضغط داخل المتصفح لتبقى البيانات خفيفة",
+      "النسخة الثانية تنقل تجربة القراءة نفسها إلى Supabase: Postgres ومصادقة وتخزين وRLS"
+    ],
+    "p2.name": "لوحات لولو", "p2.alt": "Lulu’s Acrylic Art",
+    "p2.for": "مشروع لوحات أكريليك منزلي صغير.",
+    "p2.your": "يختار العميل ما يريد، هديةً أو تخرّجًا أو زواجًا، فينتقل إلى واتساب والطلب مكتوب مسبقًا. وتستمرّ هي في إدارة مشروعها بالطريقة التي اعتادتها.",
+    "p2.my": [
+      "بلا خادم ولا سلّة ولا بوابة دفع. عن قصد",
+      "كل فئة تولّد رابط <code>wa.me</code> خاصًّا بها والطلب مكتوب مسبقًا",
+      "عرض الطلب الأول يظهر مرة واحدة ويُحفظ في <code>localStorage</code>",
+      "ملف <code>index.html</code> واحد: Tailwind وخط Tajawal وJavaScript خام. عربي، RTL، للجوال أولًا"
+    ],
+    "p3.name": "بصمتي لوطني", "p3.alt": "My Print for My Nation",
+    "p3.for": "روضة أطفال، لليوم الوطني السعودي ٩٦.",
+    "p3.your": "يكتب الطفل اسمه، ويضغط بإصبعه على الشاشة، فتنطبع بصمته على خريطة المملكة. كل البصمات تبقى على الجدار. ودليل التشغيل مكتوب لمديرة الروضة بالعربية: عشر دقائق، بلا حسابات ولا لوحة إدارة.",
+    "p3.my": [
+      "يعمل من ملفات عادية دون أي إعداد، ووضع المشاركة يعمل بإضافة رابط Supabase ومفتاح anon",
+      "الجدار المباشر يتحدّث كل ٦ ثوانٍ، والمشاركات تتراكم ولا تُحذف",
+      "مشاركة نصية أو صورة أو رسالة صوتية؛ ولأجل الميكروفون يشترط الدليل رابط https",
+      "نشر ثابت: اسحب المجلد إلى Netlify Drop، أو Vercel، أو GitHub Pages"
+    ],
+    "p4.name": "لوحة الطاولات", "p4.alt": "Pairing Board",
+    "p4.for": "لاعبو شطرنج في بطولة مزدحمة.",
+    "p4.your": "رأيت اللاعبين يتزاحمون حول أوراق الجداول المطبوعة بحثًا عن طاولاتهم. الآن يكتب اللاعب اسمه فيرى ما يحتاجه فقط: الطاولة، واللون، والخصم، والنتيجة.",
+    "p4.my": [
+      "موقع chess-results.com بلا API ولا CORS، لذا يقرأ Cloudflare Worker الجداول ويحوّلها إلى JSON",
+      "تخزين مؤقت على الحافة (١٢ ثانية للجولات): قاعة كاملة تحدّث الصفحة بتكلفة طلبات قليلة على المصدر",
+      "بحث بالاسم بأي ترتيب، أو برقم البداية، أو بمعرّف FIDE، مع تجاهل الحروف المنبورة",
+      "إذا فشل التحديث في الخلفية تبقى آخر نتائج صحيحة على الشاشة"
+    ],
+
+    "w.kicker": "التنوّع",
+    "w.title": "فكرة واحدة، أربعة عوالم.",
+    "w.your": "متجر كمبيوتر تجريبي، «كمبيوترجي ماهر»، صمّمته بأربع طرق مختلفة تمامًا بالمحتوى نفسه. موقعك يجب أن يشبهك أنت، لا أن يشبهني.",
+    "w.my": "النصوص نفسها والمنتجات نفسها، وأربع إعادات بناء من الصفر: HTML ثابت، وغرفة WebGL بمنظور الشخص الأول، وتمرير بجزيئات WebGL، وواجهة نظام تشغيل بنوافذ.",
+    "v1.your": "طرفية كلاسيكية", "v1.my": "HTML · CSS · JS، عربي وإنجليزي",
+    "v2.your": "غرفة تدخلها", "v2.my": "WebGL بمنظور الشخص الأول؛ اضغط الشاشة لتعبر الزجاج",
+    "v3.your": "مشهد ليلي واحد متصل", "v3.my": "حقل جزيئات WebGL يتشكّل مع كل قسم",
+    "v4.your": "المتجر كنظام تشغيل", "v4.my": "واجهة نظام بنوافذ وروابط مباشرة مثل <code>#mac</code>",
+
+    "lab.kicker": "المختبر",
+    "lab.title": "حين لا يطلب أحد.",
+    "lab.intro": "أشياء أبنيها لأفهم كيف تعمل الأشياء. ولهذا تبقى الأجزاء البسيطة بسيطة.",
+    "l1.name": "NovaOS",
+    "l1.your": "نظام تشغيل، يبدأ من أول بايت يقرؤه الحاسوب.",
+    "l1.my": "محمّل إقلاع 16-بت بلغة x86 Assembly على صورة قرص FAT12.",
+    "l2.name": "LEAP ONE",
+    "l2.your": "دليل جيب لمؤتمر LEAP 2026 في الرياض. اسأل بصوتك، بالعربي أو بالإنجليزي، إلى أين تذهب.",
+    "l2.my": "إدخال وإخراج صوتي؛ وجّه الكاميرا إلى لافتة واسأل؛ إجابات من جملتين إلى أربع.",
+    "l3.name": "مساعد الفحص دون اتصال",
+    "l3.your": "مساعد ذكاء اصطناعي لبيانات الفحص في أماكن بلا إنترنت: منصات النفط والمصافي.",
+    "l3.my": "يعمل دون اتصال أولًا، لمواقع صناعية معزولة. Python.",
+    "l4.name": "Reject2Value",
+    "l4.your": "يحوّل أرقام مختبر المحلول الملحي المرفوض في محطة التحلية إلى ما يبني عليه المدير قراره: ريالات، وثاني أكسيد الكربون، ومياه.",
+    "l4.my": "نموذج أولي لهاكاثون: إدخال العيّنات، ورفع CSV وExcel وPDF، ومسارات القيمة، عربي وإنجليزي.",
+
+    "contact.kicker": "تواصل",
+    "contact.title": "اشرحها كيفما جاءت.",
+    "contact.your": "لا تحتاج إلى الكلمات الصحيحة. أخبرني بما تتخيّله كيفما جاء، وسأعود إليك بما هو ممكن وما يتطلّبه.",
+    "contact.my": "تقني؟ تجاوز الشرح. المستودعات وملفات README وملاحظات البنية كلها على GitHub.",
+    "btn.wa": "راسلني على واتساب", "btn.mail": "راسلني بالبريد", "btn.gh": "GitHub",
+    foot: "عبدالله بخاري", "foot.note": "بسيط من جهتك، متقن من جهتي. · تصوّر أوّلي، ٢٠٢٦"
+  }
+};
+
+/* Diagrams: ["p" = person | "m" = machine, title, detail] */
+const D = {
+  en: {
+    legend: ["person", "machine"],
+    p1: { nodes: [
+      ["p", "The novelist", "writes in the page · presses Publish"],
+      ["m", "Draft", "localStorage · saved on every edit"],
+      ["m", "GitHub Contents API", "PUT data.json · edits batched · 409 → retry"],
+      ["m", "GitHub Pages", "rebuilds in about a minute"],
+      ["p", "Readers", "a calm Arabic reader, right to left"]
+    ]},
+    p2: { nodes: [
+      ["p", "A customer", "taps “Wedding”"],
+      ["m", "wa.me link", "order text pre-filled for that category"],
+      ["p", "Lulu, on WhatsApp", "confirms, takes the deposit, paints"]
+    ], note: "No server in between. On purpose." },
+    p3: { nodes: [
+      ["p", "A child", "types a name · presses a finger to the screen"],
+      ["m", "Print on the map", "sound + confetti · counter +1"],
+      ["m", "Supabase (shared mode)", "Postgres · anon key · nothing deleted"],
+      ["p", "Parents & teachers", "the live wall · refreshes every 6 s"]
+    ]},
+    p4: { nodes: [
+      ["p", "A player", "types their name, any order"],
+      ["m", "Cloudflare Worker", "scrape · normalise to JSON · edge cache 12 s"],
+      ["m", "chess-results.com", "no API, no CORS"],
+      ["p", "Their card", "board · colour · opponent · result"]
+    ]}
+  },
+  ar: {
+    legend: ["إنسان", "آلة"],
+    p1: { nodes: [
+      ["p", "الكاتبة", "تكتب في الصفحة · تضغط «نشر»"],
+      ["m", "مسودة", "localStorage · تُحفظ مع كل تعديل"],
+      ["m", "GitHub Contents API", "PUT data.json · دفعة واحدة · إعادة عند 409"],
+      ["m", "GitHub Pages", "إعادة بناء خلال دقيقة تقريبًا"],
+      ["p", "القرّاء", "قارئ عربي هادئ من اليمين إلى اليسار"]
+    ]},
+    p2: { nodes: [
+      ["p", "العميل", "يضغط «زواج»"],
+      ["m", "رابط wa.me", "نص الطلب مكتوب مسبقًا لتلك الفئة"],
+      ["p", "لولو، على واتساب", "تؤكّد، وتستلم العربون، وترسم"]
+    ], note: "لا خادم في المنتصف. عن قصد." },
+    p3: { nodes: [
+      ["p", "الطفل", "يكتب اسمه · يضغط بإصبعه على الشاشة"],
+      ["m", "بصمة على الخريطة", "صوت وقصاصات · العدّاد +١"],
+      ["m", "Supabase (وضع المشاركة)", "Postgres · مفتاح anon · لا شيء يُحذف"],
+      ["p", "الأهالي والمعلّمات", "الجدار المباشر · يتحدّث كل ٦ ثوانٍ"]
+    ]},
+    p4: { nodes: [
+      ["p", "اللاعب", "يكتب اسمه بأي ترتيب"],
+      ["m", "Cloudflare Worker", "قراءة الجداول · تحويلها إلى JSON · تخزين ١٢ ثانية"],
+      ["m", "chess-results.com", "بلا API ولا CORS"],
+      ["p", "بطاقته", "الطاولة · اللون · الخصم · النتيجة"]
+    ]}
+  }
+};
+
+const root = document.documentElement;
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+};
+let lang = store.get("ab.lang") === "ar" ? "ar" : "en";
+let side = store.get("ab.side") === "my" ? "my" : "your";
+
+function render(){
+  root.lang = lang;
+  root.dir = lang === "ar" ? "rtl" : "ltr";
+  const t = T[lang];
+  document.title = t.title;
+  document.querySelectorAll("[data-t]").forEach(el => {
+    const v = t[el.dataset.t];
+    if (v == null) return;
+    el.innerHTML = Array.isArray(v) ? v.map(x => "<li>" + x + "</li>").join("") : v;
+  });
+  document.querySelectorAll("[data-ta]").forEach(el => el.setAttribute("aria-label", t[el.dataset.ta]));
+  const d = D[lang];
+  document.querySelectorAll("[data-diagram]").forEach(el => {
+    const g = d[el.dataset.diagram];
+    let html = '<p class="legend" aria-hidden="true"><span class="lp">' + d.legend[0] + '</span><span class="lm">' + d.legend[1] + '</span></p><div class="flow">';
+    g.nodes.forEach((n, i) => {
+      if (i) html += '<span class="arrow" aria-hidden="true"></span>';
+      html += '<div class="node ' + (n[0] === "p" ? "person" : "machine") + '"><span class="t">' + n[1] + '</span><span class="s">' + n[2] + '</span></div>';
+    });
+    html += "</div>";
+    if (g.note) html += '<p class="d-note">' + g.note + "</p>";
+    el.innerHTML = html;
+  });
+}
+
+function setSide(s){
+  side = s;
+  root.dataset.side = s;
+  document.querySelectorAll("[data-side-btn]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sideBtn === s)));
+  store.set("ab.side", s);
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-side-btn]");
+  if (b) setSide(b.dataset.sideBtn);
+});
+document.getElementById("lang").addEventListener("click", () => {
+  lang = lang === "en" ? "ar" : "en";
+  store.set("ab.lang", lang);
+  render();
+});
+
+/* Pressing Publish shows what Publish does. */
+const publish = document.getElementById("publish");
+publish.addEventListener("click", () => {
+  publish.textContent = lang === "ar" ? "جارٍ النشر…" : "Publishing…";
+  setTimeout(() => { setSide("my"); publish.textContent = T[lang]["spec.publish"]; }, 650);
+});
+
+/* Header: border on scroll; compact switch once the hero switch is gone. */
+const bar = document.getElementById("top-bar");
+const compact = bar.querySelector(".side-switch.compact");
+addEventListener("scroll", () => bar.classList.toggle("scrolled", scrollY > 8), { passive: true });
+new IntersectionObserver(([entry]) => {
+  const show = !entry.isIntersecting;
+  bar.classList.toggle("show-switch", show);
+  compact.inert = !show;
+}, { rootMargin: "-64px 0px 0px 0px" }).observe(document.getElementById("hero-switch"));
+
+/* Gentle reveals. */
+const io = new IntersectionObserver(entries => entries.forEach(en => {
+  if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+}), { threshold: .12 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+render();
+setSide(side);
+</script>
+</body>
+</html>
