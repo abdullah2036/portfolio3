@@ -1,0 +1,90 @@
+/* route transition layers */
+.transition-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: var(--bg-deep);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.transition-clone {
+  position: fixed;
+  z-index: 95;
+  overflow: hidden;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(190, 225, 255, 0.22);
+  will-change: left, top, width, height;
+}
+.transition-clone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+main {
+  position: relative;
+}
+
+/* the board's background: faint aurora light at the edges of the canvas.
+   Photographic (a pre-blurred copy of the hero plate), masked to the margins. */
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-size: 160% 160%;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+  filter: saturate(1.1);
+  -webkit-mask-image: radial-gradient(ellipse 72% 68% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 85%, #000 100%);
+  mask-image: radial-gradient(ellipse 72% 68% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 85%, #000 100%);
+}
+.atmosphere::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 10, 28, 0.55);
+}
+
+/* ── language switch: a curtain of night with a line of aurora light on its leading edge ── */
+.lang-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 97;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(60% 50% at 50% 55%, rgba(30, 111, 255, 0.1), transparent 70%),
+    var(--bg-deep);
+  visibility: hidden;
+  clip-path: inset(0 0 0 100%);
+  pointer-events: none;
+}
+.lang-veil__edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 100%;
+  width: 2px;
+  margin-left: -1px;
+  background: linear-gradient(180deg, transparent 0%, var(--c-cyan) 22%, var(--c-mint) 50%, var(--c-lilac) 78%, transparent 100%);
+  box-shadow:
+    0 0 18px 2px rgba(0, 212, 231, 0.55),
+    0 0 60px 10px rgba(42, 214, 160, 0.25);
+}
+.lang-veil__word {
+  font-size: clamp(2.6rem, 6vw, 5.5rem);
+  font-weight: 300;
+  color: var(--tx);
+  opacity: 0;
+}
+.lang-veil__word:lang(ar) {
+  font-family: 'Aref Ruqaa', 'Alexandria Variable', serif;
+  font-weight: 400;
+}
+.lang-veil__word:lang(en) {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+}

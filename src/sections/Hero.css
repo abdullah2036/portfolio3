@@ -1,0 +1,233 @@
+/* ─────────────────────────────────────────────────────────────
+   01 — HERO
+   Full-bleed: no frame, no border. The plate fills the viewport and its
+   lower edge feathers into the page, continuing beneath the About scene —
+   the same treatment as the horizon band under "Space for Ideas".
+   Nav and copy sit on the page grid (--page-x), like every other section.
+   ───────────────────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  z-index: 0;
+  height: 100svh;
+  min-height: 600px;
+}
+
+.hero__media {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  /* runs on past the section so the light is still there as About arrives */
+  height: calc(100% + 24vh);
+  transform-origin: 50% 0%;
+  will-change: transform;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 56%, rgba(0, 0, 0, 0.6) 72%, rgba(0, 0, 0, 0.18) 88%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 56%, rgba(0, 0, 0, 0.6) 72%, rgba(0, 0, 0, 0.18) 88%, transparent 100%);
+}
+.hero__img,
+.hero__gl {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hero__gl {
+  opacity: 0;
+}
+.hero__gl.is-on {
+  opacity: 1;
+}
+/* Arabic reads from the right, so the scene mirrors: the copy takes the right,
+   the figure and the open sky move to the left. */
+:root[dir='rtl'] .hero__img,
+:root[dir='rtl'] .hero__gl {
+  scale: -1 1;
+}
+.hero__dim {
+  position: absolute;
+  inset: 0;
+  background: #030612;
+  opacity: 0;
+}
+
+/* legibility only: a soft wash behind the copy and under the nav */
+.hero__shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(4, 8, 26, 0.55) 0%, rgba(4, 8, 26, 0.26) 28%, rgba(4, 8, 26, 0) 52%),
+    linear-gradient(180deg, rgba(4, 8, 26, 0.42) 0%, rgba(4, 8, 26, 0) 18%);
+}
+:root[dir='rtl'] .hero__shade {
+  background:
+    linear-gradient(270deg, rgba(4, 8, 26, 0.55) 0%, rgba(4, 8, 26, 0.26) 28%, rgba(4, 8, 26, 0) 52%),
+    linear-gradient(180deg, rgba(4, 8, 26, 0.42) 0%, rgba(4, 8, 26, 0) 18%);
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* nav centred in the top inset band, level with the floating nav */
+  padding-top: max(8px, calc((var(--gy) - 44px) / 2));
+}
+
+.hero__content {
+  margin-top: auto;
+  margin-bottom: clamp(88px, 19vh, 220px);
+  will-change: transform, opacity;
+}
+.hero__eyebrow {
+  margin-bottom: clamp(1rem, 2.2vh, 1.6rem);
+  color: var(--tx-2);
+  font-size: clamp(0.6rem, 0.1vw + 0.56rem, 0.68rem);
+  letter-spacing: 0.32em;
+}
+.hero__title {
+  font-size: var(--t-hero);
+  line-height: 0.98;
+  margin-inline-start: -0.05em;
+}
+:root[lang='ar'] .hero__title {
+  font-size: calc(var(--t-hero) * 0.92);
+  margin-inline-start: 0;
+}
+.hero__intro {
+  max-width: 21.5em;
+  margin-top: clamp(1.25rem, 2.8vh, 2rem);
+  font-size: clamp(0.92rem, 0.2vw + 0.84rem, 1.06rem);
+  line-height: 1.55;
+  color: rgba(233, 248, 255, 0.84);
+}
+.hero__cta-wrap {
+  margin-top: clamp(1.6rem, 4vh, 2.6rem);
+}
+.hero__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.hero__resume.ghost-pill {
+  height: 50px;
+  gap: 0.6em;
+  padding-inline: 1.6em;
+}
+.hero__resume-arrow {
+  display: inline-block;
+  font-family: var(--f-mono);
+  transition: transform 0.6s var(--ease-out);
+}
+.hero__resume:hover .hero__resume-arrow {
+  transform: translate(2px, -2px);
+}
+:root[dir='rtl'] .hero__resume-arrow {
+  scale: -1 1;
+}
+:root[dir='rtl'] .hero__resume:hover .hero__resume-arrow {
+  transform: translate(2px, -2px);
+}
+:root[lang='ar'] .hero__intro {
+  max-width: 26em;
+  line-height: 1.85;
+}
+
+.hero__index {
+  position: absolute;
+  inset-inline-end: var(--page-x);
+  bottom: clamp(88px, 19vh, 220px);
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  letter-spacing: 0.12em;
+  color: var(--tx-2);
+}
+.hero__index-line {
+  position: relative;
+  display: block;
+  width: clamp(48px, 5vw, 76px);
+  height: 1px;
+}
+.hero__index-line i,
+.hero__index-line b {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+}
+:root[dir='rtl'] .hero__index-line i,
+:root[dir='rtl'] .hero__index-line b {
+  transform-origin: right center;
+}
+.hero__index-line i {
+  background: rgba(233, 248, 255, 0.32);
+}
+.hero__index-line b {
+  background: var(--tx);
+  transform: scaleX(0.34);
+}
+
+#hero-end {
+  position: absolute;
+  bottom: 0;
+  height: 0;
+}
+
+/* ── mobile: copy lives in the upper sky, the figure and its reflection stay clear ── */
+@media (max-width: 767px) {
+  .hero {
+    min-height: 580px;
+  }
+  .hero__media {
+    height: calc(100% + 16vh);
+  }
+  .hero__inner {
+    padding-top: 16px;
+  }
+  .hero__shade,
+  :root[dir='rtl'] .hero__shade {
+    background: linear-gradient(180deg, rgba(4, 8, 26, 0.6) 0%, rgba(4, 8, 26, 0.34) 34%, rgba(4, 8, 26, 0) 52%);
+  }
+  .hero__resume.ghost-pill {
+    height: 46px;
+  }
+  .hero__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-top: clamp(36px, 8vh, 80px);
+    margin-bottom: clamp(56px, 12vh, 110px);
+  }
+  .hero__cta-wrap {
+    margin-top: auto;
+  }
+  .hero__title {
+    font-size: clamp(3.1rem, 15vw, 4.4rem);
+  }
+  .hero__intro {
+    max-width: 24em;
+  }
+  .hero__index {
+    display: none;
+  }
+}
+
+/* pre-intro state (removed by the intro timeline, which takes over inline) */
+.hero.is-intro [data-intro],
+.hero.is-intro .nav--hero > *,
+.hero.is-intro .hero__eyebrow,
+.hero.is-intro .hero__intro,
+.hero.is-intro .hero__ctas,
+.hero.is-intro .hero__index,
+.hero.is-intro .hero__img {
+  opacity: 0;
+}
+.hero.is-intro .hero__title .rt-inner {
+  transform: translateY(112%);
+}

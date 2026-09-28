@@ -1,0 +1,158 @@
+/* ─────────────────────────────────────────────────────────────
+   05 — PHILOSOPHY   (board: TYPOGRAPHY — "Space for Ideas")
+   Massive negative space; the one place the page exhales.
+   ───────────────────────────────────────────────────────────── */
+
+.philo {
+  position: relative;
+  z-index: 1;
+}
+
+/* scene A: the label at the top of the frame, the statement resting on its baseline */
+.philo__a {
+  justify-content: space-between;
+}
+.philo__head {
+  align-items: end;
+  padding-bottom: clamp(0px, 2vh, 24px);
+}
+.philo__title {
+  grid-column: 1 / span 9;
+  font-size: clamp(4rem, 10.4vw, 12.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+}
+.philo__title .accent {
+  color: #86e4d4;
+}
+.philo__body {
+  grid-column: 10 / span 3;
+  max-width: 21em;
+  padding-bottom: 1.2vw;
+}
+
+/* cropped light: the hero's horizon, far away */
+/* scene B: the horizon band takes the free height, principles sit on the frame's floor */
+.philo__b {
+  justify-content: space-between;
+  gap: clamp(2rem, 6vh, 4rem);
+}
+.philo__horizon {
+  position: relative;
+  flex: 1;
+  min-height: 160px;
+  max-height: 46vh;
+  margin-inline: calc(var(--page-x) * -1);
+}
+.philo__horizon-mask {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0%, #000 18%, #000 82%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(90deg, transparent 0%, #000 18%, #000 82%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
+  mask-composite: intersect;
+}
+.philo__horizon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+}
+.philo__horizon-glow {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 64%; /* sits on the ice line of the plate */
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(167, 242, 178, 0.55) 30%, rgba(233, 248, 255, 0.9) 50%, rgba(0, 212, 231, 0.55) 70%, transparent);
+  box-shadow: 0 0 18px 1px rgba(0, 212, 231, 0.35);
+  opacity: 0.55;
+  mix-blend-mode: screen;
+}
+
+.philo__principles {
+  row-gap: 3rem;
+}
+.philo__p {
+  position: relative;
+  grid-column: span 4;
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  padding-top: 1.4rem;
+  padding-right: 2vw;
+}
+.philo__p-rule {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: var(--line);
+  transform-origin: left center;
+}
+.philo__p-title {
+  margin-top: 1.4rem;
+  font-size: var(--t-title);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.philo__p .body {
+  max-width: 24em;
+  font-size: var(--t-small);
+  color: var(--tx-3);
+}
+
+@media (max-width: 1024px) {
+  .philo__title {
+    grid-column: 1 / -1;
+  }
+  .philo__body {
+    grid-column: 6 / span 7;
+    margin-top: 2.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .philo__head {
+    display: block;
+  }
+  .philo__title {
+    font-size: clamp(3.6rem, 19vw, 5.5rem);
+  }
+  .philo__a {
+    gap: 3rem;
+  }
+  .philo__horizon {
+    flex: none;
+    height: 34vh;
+  }
+  .philo__body {
+    margin-top: 2rem;
+    margin-left: 18%;
+  }
+  .philo__principles {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .philo__p {
+    grid-column: auto;
+  }
+}
+
+:root[dir='rtl'] .philo__p-rule {
+  transform-origin: right center;
+}
+/* the far-away horizon mirrors with the hero */
+:root[dir='rtl'] .philo__horizon-mask {
+  scale: -1 1;
+}
+:root[lang='ar'] .philo__title {
+  font-size: clamp(3.4rem, 8.6vw, 10.5rem);
+}
+:root[lang='ar'] .philo__p .body {
+  font-size: 0.92rem;
+}

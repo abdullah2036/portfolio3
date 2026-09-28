@@ -1,0 +1,58 @@
+.animated-image {
+  --r-img: var(--r-md);
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-img);
+  background: var(--surface);
+  isolation: isolate;
+  /* hairline drawn above the image so it stays crisp during scale */
+}
+.animated-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(190, 225, 255, 0.2);
+  pointer-events: none;
+  z-index: 2;
+  transition: border-color var(--dur-2) var(--ease-out);
+}
+.animated-image__plx,
+.animated-image__mover {
+  position: absolute;
+  inset: -6% -2%;
+  will-change: transform;
+}
+.animated-image__mover {
+  inset: 0;
+}
+.animated-image__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.08);
+  transform-origin: 50% 50%;
+  /* hover scale uses the independent `scale` property so it composes with GSAP's transform */
+  transition: scale 1.4s var(--ease-out), filter 1.2s var(--ease-out);
+}
+
+/* light layer: a soft aurora-tinted sheen that follows the cursor on hover */
+.animated-image__sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(60% 55% at var(--mx, 70%) var(--my, 20%), rgba(120, 240, 220, 0.16), rgba(30, 111, 255, 0.06) 45%, transparent 70%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.9s var(--ease-out);
+}
+
+/* screenshots sit flush in their frame, anchored to the top of the page they show */
+.animated-image.is-shot .animated-image__plx {
+  inset: 0;
+}
+.animated-image.is-shot .animated-image__img {
+  transform: none;
+  object-position: 50% 0%;
+}
