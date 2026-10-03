@@ -1,16 +1,218 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#060a1c" />
-    <meta name="color-scheme" content="dark" />
-    <title>Abdullah Bokhary — Ideas in Motion</title>
-    <meta name="description" content="Freelance web &amp; software developer building design-first websites with a visual identity of their own." />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Abdullah Bokhary — Design-first developer</title>
+  <meta name="description" content="Abdullah Bokhary — a design-first developer. Identity, interface and the code behind them: WebGL front-ends, full-stack products and AI tools." />
+  <meta name="theme-color" content="#050B14" />
+  <link rel="preload" href="/assets/fonts/ClashDisplay-500.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/assets/fonts/Satoshi-500.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body class="is-loading">
+  <canvas id="world" aria-hidden="true"></canvas>
+  <div class="grade-overlay" aria-hidden="true"></div>
+
+  <!-- Preloader -->
+  <div class="loader" id="loader" aria-live="polite">
+    <div class="loader__aurora" aria-hidden="true"></div>
+    <div class="loader__mark"><span>A</span><span>b</span><span>d</span><span>u</span><span>l</span><span>l</span><span>a</span><span>h</span></div>
+    <div class="loader__bar"><i id="loaderBar"></i></div>
+    <div class="loader__meta"><span>Waiting for the lights</span><span id="loaderPct">0%</span></div>
+  </div>
+
+  <!-- Navigation -->
+  <header class="nav" id="nav">
+    <a class="nav__logo" href="#top" data-scroll="#top" aria-label="Abdullah — home">Abdullah</a>
+    <div class="nav__right">
+      <a class="pill pill--talk" href="#contact" data-scroll="#contact">Let's talk <i class="dot"></i></a>
+      <button class="nav__burger" id="burger" type="button" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+    </div>
+  </header>
+  <!-- Section dock -->
+  <nav class="secbar" id="secbar" aria-label="Sections">
+    <i class="secbar__ind" aria-hidden="true"></i>
+    <a href="#top" data-scroll="#top" data-sec="hero" class="is-current"><b>01</b>Home</a>
+    <a href="#work" data-scroll="#work" data-sec="work"><b>02</b>Work</a>
+    <a href="#about" data-scroll="#about" data-sec="about"><b>03</b>About</a>
+    <a href="#services" data-scroll="#services" data-sec="services" class="secbar__opt"><b>04</b>Services</a>
+    <a href="#contact" data-scroll="#contact" data-sec="contact"><b>05</b>Contact</a>
+    <i class="secbar__progress" aria-hidden="true"><i id="secProgress"></i></i>
+  </nav>
+  <div class="menu" id="menu">
+    <a href="#work" data-scroll="#work">Work</a>
+    <a href="#about" data-scroll="#about">About</a>
+    <a href="#about" data-scroll="#services">Services</a>
+    <a href="#contact" data-scroll="#contact">Contact</a>
+  </div>
+
+  <main id="top">
+    <!-- 01 HERO -->
+    <section class="sec hero" id="hero">
+      <div class="hero__inner">
+        <div class="hero__copy">
+          <p class="eyebrow reveal-up"><i class="eyebrow__dot"></i>Abdullah Bokhary — design-first developer</p>
+          <h1 class="hero__title" aria-label="Ideas that feel alive">
+            <span class="line"><span class="w">IDEAS THAT</span></span>
+            <span class="line"><span class="w">FEEL</span> <span class="w alive" data-text="ALIVE">ALIVE</span></span>
+          </h1>
+          <div class="hero__foot">
+            <p class="hero__lede reveal-up">I design identities and interfaces, then build them — front to back.</p>
+            <a class="cta reveal-up" href="#work" data-scroll="#work">
+              <span class="cta__orb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" /></svg></span>
+              <span class="cta__label">View my work</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <a class="hero__scroll reveal-up" href="#work" data-scroll="#work" aria-label="Scroll to work"><span class="hero__mouse"><i></i></span><span>Scroll</span></a>
+    </section>
+
+    <!-- Descent: falling through the aurora -->
+    <section class="sec descent" id="descent">
+      <div class="descent__stage">
+        <p class="descent__cap">Identity <i></i> Interface <i></i> Production</p>
+        <h2 class="descent__title" aria-label="Design first, then build it.">
+          <span class="dl dl--1" data-text="Design first,">Design first,</span>
+          <span class="dl dl--2" data-text="then build it.">then build it.</span>
+        </h2>
+        <div class="descent__ticks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="descent__meter" aria-hidden="true">alt <span id="depthMeter">300</span> km</div>
+    </section>
+
+    <!-- 02 WORK -->
+    <section class="sec work" id="work">
+      <div class="sec__head">
+        <p class="kicker"><b>02</b><span>Selected work</span></p>
+        <div class="work__titlebar">
+          <h2 class="h2 split">Projects<br />with a deeper<br />purpose.</h2>
+          <a class="viewall" href="https://github.com/abdullah2036" target="_blank" rel="noopener">View all on GitHub <span class="ring"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8" /></svg></span></a>
+        </div>
+        <div class="filters" role="tablist" aria-label="Filter projects">
+          <button class="chip is-active" data-filter="all" role="tab" aria-selected="true">All</button>
+          <button class="chip" data-filter="identity" role="tab">Identity</button>
+          <button class="chip" data-filter="web" role="tab">Web</button>
+          <button class="chip" data-filter="interactive" role="tab">Interactive</button>
+          <button class="chip" data-filter="ai" role="tab">AI</button>
+          <button class="chip" data-filter="fullstack" role="tab">Full-stack</button>
+        </div>
+      </div>
+      <div class="grid">
+        <article class="card card--tall" data-cat="identity web interactive" data-project="maher" tabindex="0">
+          <div class="card__media"><img src="/assets/aurora/cards/maher-os.webp" alt="Computerjy Maher OS: a macOS-style desktop with a terminal and services window open" loading="lazy" style="object-position: 50% 40%" /></div>
+          <div class="card__shine"></div>
+          <div class="card__info"><div><h3>Computerjy Maher OS</h3><p>Brand series · Web OS</p></div><span class="card__num">01 <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8" /></svg></span></div>
+        </article>
+        <article class="card" data-cat="ai web" data-project="leap" tabindex="0">
+          <div class="card__media"><img src="/assets/aurora/cards/leap.webp" alt="LEAP ONE: a dot-matrix face on a phone voice assistant" loading="lazy" style="object-position: 50% 12%" /></div>
+          <div class="card__shine"></div>
+          <div class="card__info"><div><h3>LEAP ONE</h3><p>AI voice companion</p></div><span class="card__num">02 <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8" /></svg></span></div>
+        </article>
+        <article class="card" data-cat="fullstack web identity" data-project="eloria" tabindex="0">
+          <div class="card__media"><img src="/assets/aurora/cards/eloria.webp" alt="Eloria Story: an Arabic novel library with book covers" loading="lazy" /></div>
+          <div class="card__shine"></div>
+          <div class="card__info"><div><h3>Eloria Story</h3><p>Full-stack publishing</p></div><span class="card__num">03 <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8" /></svg></span></div>
+        </article>
+        <article class="card" data-cat="web" data-project="pairing" tabindex="0">
+          <div class="card__media"><img src="/assets/aurora/cards/pairing.webp" alt="Pairing Board: chess tournament pairings shown as table-tent cards" loading="lazy" style="object-position: 50% 20%" /></div>
+          <div class="card__shine"></div>
+          <div class="card__info"><div><h3>Pairing Board</h3><p>Product UI</p></div><span class="card__num">04 <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8" /></svg></span></div>
+        </article>
+        <article class="card" data-cat="interactive web" data-project="pixel" tabindex="0">
+          <div class="card__media"><img src="/assets/aurora/cards/pixel.webp" alt="Pixel Portfolio: a pixel-art campsite at night under the northern lights" loading="lazy" /></div>
+          <div class="card__shine"></div>
+          <div class="card__info"><div><h3>Pixel Portfolio</h3><p>Playable world</p></div><span class="card__num">05 <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8" /></svg></span></div>
+        </article>
+      </div>
+      <div class="archive">
+        <p class="archive__label">Also built</p>
+        <ul class="archive__list">
+          <li><a href="https://abdullah2036.github.io/maheren/" target="_blank" rel="noopener"><b>Al-Maheren</b><span>Family portal + XP-style CMS</span></a></li>
+          <li><a href="https://github.com/abdullah2036/NovaOS" target="_blank" rel="noopener"><b>NovaOS</b><span>x86 bootloader, from scratch</span></a></li>
+          <li><a href="https://github.com/abdullah2036/inspection-ai-copilot" target="_blank" rel="noopener"><b>Inspection AI</b><span>Offline LLM copilot</span></a></li>
+          <li><a href="https://github.com/abdullah2036/workbench" target="_blank" rel="noopener"><b>CTF Workbench</b><span>Black Hat MEA toolkit</span></a></li>
+          <li><a href="https://github.com/abdullah2036/luigi" target="_blank" rel="noopener"><b>Luigi Detector</b><span>Zero-shot CLIP vision</span></a></li>
+          <li><a href="https://abdullah2036.github.io/artmaher/" target="_blank" rel="noopener"><b>Lulu's Art</b><span>Storefront for a painter</span></a></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec gap" aria-hidden="true"></section>
+
+    <!-- 03 ABOUT -->
+    <section class="sec about" id="about">
+      <div class="about__inner">
+        <div class="about__copy">
+          <p class="kicker"><b>03</b><span>About &amp; services</span></p>
+          <h2 class="h2 split">Design for<br />a more human<br />digital world.</h2>
+          <p class="body reveal-up">I'm Abdullah Bokhary — a design-first developer and data science student. I start with the identity and the interface, then carry it all the way into production: motion and WebGL on the front, databases, auth and AI behind it.</p>
+          <div class="stats">
+            <div class="stat reveal-up"><b data-count="31">0</b><span>Open-source repos</span></div>
+            <div class="stat reveal-up"><b data-count="8">0</b><i>+</i><span>Live products</span></div>
+            <div class="stat reveal-up"><b data-count="2023" data-from="2000">2000</b><span>Shipping since</span></div>
+          </div>
+          <a class="pill pill--ghost reveal-up" href="https://github.com/abdullah2036" target="_blank" rel="noopener">More about me</a>
+        </div>
+        <ul class="services" id="services" aria-label="Services">
+          <li class="is-active" data-i="0"><span>Identity</span><p>Brand systems, logos and graphic design with a point of view.</p></li>
+          <li data-i="1"><span>Interface</span><p>UI/UX, motion and design systems that feel considered.</p></li>
+          <li data-i="2"><span>Front-end</span><p>WebGL, Three.js, React and creative code that performs.</p></li>
+          <li data-i="3"><span>Full-stack &amp; AI</span><p>Node, Postgres/Supabase, Python and LLM-powered tools.</p></li>
+          <i class="services__rail"><i id="servicesThumb"></i></i>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sec gap" aria-hidden="true"></section>
+
+    <!-- 04 CONTACT -->
+    <section class="sec contact" id="contact">
+      <div class="contact__copy">
+        <p class="kicker"><b>04</b><span>Let's create together</span></p>
+        <h2 class="h2 split">Have a project<br />in mind?</h2>
+        <p class="body reveal-up">I'm always open to interesting projects, <br />collaborations and new ideas.</p>
+        <a class="cta reveal-up" href="mailto:a.bokhary2077@gmail.com">
+          <span class="cta__orb"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" /></svg></span>
+          <span class="cta__label">Let's talk</span>
+        </a>
+        <ul class="socials reveal-up">
+          <li><a href="https://github.com/abdullah2036" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/abdullah-bokhary-840315326/" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li><a href="https://x.com/a_dbokhary" target="_blank" rel="noopener">X</a></li>
+          <li><a href="mailto:a.bokhary2077@gmail.com">a.bokhary2077@gmail.com</a></li>
+        </ul>
+      </div>
+      <footer class="footer">
+        <div class="footer__brand"><b>Abdullah</b><span>—</span><em>Design-first developer</em></div>
+        <p class="footer__copy">© <span id="year">2026</span> Abdullah Bokhary. All rights reserved.</p>
+      </footer>
+    </section>
+  </main>
+
+  <!-- Project overlay -->
+  <div class="case" id="case" role="dialog" aria-modal="true" aria-labelledby="caseTitle" hidden>
+    <div class="case__scrim" data-close></div>
+    <div class="case__panel">
+      <button class="case__close" data-close aria-label="Close project">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </button>
+      <div class="case__media"><img id="caseImg" alt="" /></div>
+      <div class="case__body">
+        <p class="kicker"><b id="caseNum">01</b><span id="caseType">Interactive Experience</span></p>
+        <h3 id="caseTitle">Project</h3>
+        <p id="caseText"></p>
+        <dl class="case__facts" id="caseFacts"></dl>
+        <div class="case__links" id="caseLinks"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="busy" id="busy" role="status" aria-live="polite" hidden><i></i><span>Loading</span></div>
+
+  <div class="cursor" id="cursor" aria-hidden="true"><i></i><span id="cursorLabel"></span></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
 </html>
